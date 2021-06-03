@@ -48,15 +48,21 @@ app.post('/login',(req,res)=>{
   })
   app.post('/deposit',authMiddleware,(req,res)=>{
       console.log(req.session.currentuser);
-    const result=dataService.deposit(req.body.accno,req.body.pswd,req.body.amount)
-    res.status(result.statusCode).json(result)
+    dataService.deposit(req.body.accno,req.body.pswd,req.body.amount)
+    .then(result=>{
+      res.status(result.statusCode).json(result)
+    })
+    
    
   
   })
-  app.post('/withdraw',(req,res)=>{
-    const result=dataService.withdraw(req.body.accno,req.body.pswd,req.body.amount)
+  app.post('/withdraw',authMiddleware,(req,res)=>{
+   dataService.withdraw(req.body.accno,req.body.pswd,req.body.amount)
+   .then(result=>{
     res.status(result.statusCode).json(result)
    
+   })
+    
   
   })
 

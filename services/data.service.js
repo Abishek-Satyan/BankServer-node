@@ -34,9 +34,9 @@ useraccountDetails={
     
 
   }
-  const login=(req,accno,pswd)=>{
-  
-    return db.User.findOne({"accno":accno,"password":pswd})
+  const login=(req,accno,password)=>{
+    console.log(accno)
+    return db.User.findOne({accno,password})
     .then(user=>{
       if(user){
         req.session.currentuser=user
@@ -61,67 +61,58 @@ useraccountDetails={
   const deposit=(accno,pswd,amt)=>{
    
     var amount=parseInt(amt)
-    let user=useraccountDetails
-    if(accno in user)
-    {
-      if(pswd==user[accno]["password"]){
-        user[accno]["balance"]+=amount
-        console.log(user[accno]["balance"])
-        return{
-          statusCode:200,
-          status:"true",
-          message:"Balance "+user[accno]["balance"]
-        }
-       
-        
-      }
-      else{
-        return{
-          statusCode:422,
-          status:"false",
-          message:"Invalid account number and password"
-        }
-      }
-    }
-    else{
-      return{
-        statusCode:422,
-        status:"false",
-        message:"Invalid account number and password"
-      }
-    }
-  }
- const withdraw=(accno,pswd,amt)=>{
-    var amount=parseInt(amt)
-    let user=useraccountDetails
-    if(accno in user)
-    {
-      if(pswd==user[accno]["password"]){
-        user[accno]["balance"]-=amount
-        console.log(user[accno]["balance"])
-        return{
-          statusCode:200,
-          status:"true",
-          message:"Balance "+user[accno]["balance"]
-        }
-       
-        
-      }
-      else{
+    return db.User.findOne({"accno":accno,"password":pswd})
+    .then(user=>{
+      if(!user){
         return{
           statusCode:422,
           status:"false",
           message:"Invalid account number and password "
         }
       }
-    }
-    else{
-      return{
-        statusCode:422,
-        status:"false",
-        message:"Invalid account number and password "
+      else{
+        user["balance"]+=amount
+        user.save()
+        return{
+          statusCode:200,
+          status:"true",
+          message:"Balance "+user["balance"]
+        }
       }
-    }
+    })
+    
+  }
+ const withdraw=(accno,pswd,amt)=>{
+    var amount=parseInt(amt)
+    return db.User.findOne({"accno":accno,"password":pswd})
+    .then(user=>{
+      if(!user){
+        return{
+          statusCode:422,
+          status:"false",
+          message:"Invalid account number and password "
+        }
+      }
+      else{
+        if(user.balance <= 0){
+          return{
+           
+              statusCode:401,
+              status:"false",
+              message:"Insufficient balance"
+            
+          }
+        }
+        user["balance"]-=amount
+        user.save()
+        return{
+          statusCode:200,
+          status:"true",
+          message:"Balance "+user["balance"]
+        }
+      }
+    })
+    
   }
 
 

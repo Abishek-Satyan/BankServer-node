@@ -4,7 +4,7 @@ mongoose.connect('mongodb://localhost:27017/bankApp',{
     useUnifiedTopology:true
 })
 const User=mongoose.model('User',{
-    accno:String,
+    accno:Number,
     username:String,
     password:String,
     balance:Number
